@@ -19,14 +19,14 @@ data class JastipResponse(
 
 fun Application.configureRouting() {
     routing {
-        // Root endpoint
         get("/") {
             call.respond(mapOf(
                 "message" to "Welcome to Titip.in API",
                 "version" to "0.0.1"
             ))
         }
-        // Health check — buat ngecek server nyala
+
+        // health check
         get("/health") {
             call.respond(mapOf(
                 "status" to "OK",
@@ -34,6 +34,7 @@ fun Application.configureRouting() {
                 "version" to "0.0.1"
             ))
         }
+
         authRoutes()
 
         // ==== JASTIP DUMMY ENDPOINTS ====
@@ -66,7 +67,6 @@ fun Application.configureRouting() {
         }
 
         get("/jastip/{id}") {
-            // call.parameters["id"] → pengganti req.params.id di Express
             val id = call.parameters["id"]
                 ?: return@get call.respond(
                     HttpStatusCode.BadRequest,
@@ -82,10 +82,7 @@ fun Application.configureRouting() {
         }
 
         get("/jastip/slow") {
-            // simulasi "nunggu DB query 2 detik"
-            // ini TIDAK ngeblock server — request lain tetap bisa masuk
             delay(2000)
-
             call.respond(
                 mapOf(
                     "message" to "Ini lambat tapi ga ngeblock server!",
@@ -95,13 +92,11 @@ fun Application.configureRouting() {
         }
 
         get("/jastip/db-simulation") {
-            // simulasi "pergi ke jalur IO buat query DB"
             val result = withContext(Dispatchers.IO) {
-                delay(500) // pura-pura query DB 500ms
-                "data dari simulasi DB" // ini return value-nya
+                delay(500)
+                "data dari simulasi DB"
             }
-            // result langsung bisa dipakai di sini
             call.respond(mapOf("data" to result))
         }
-        }
+    }
 }

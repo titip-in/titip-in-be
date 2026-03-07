@@ -26,7 +26,6 @@ import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
 
 fun Application.configureSecurity() {
-    // Please read the jwt property from the config file if you are using EngineMain
     val dotenv      = dotenv { ignoreIfMissing = true }
     val jwtSecret   = dotenv["JWT_SECRET"]
     val jwtIssuer   = dotenv["JWT_ISSUER"]

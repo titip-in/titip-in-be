@@ -19,19 +19,15 @@ class AuthService(private val repository: AuthRepository) {
         require(request.password.length >= 8)  { "Password minimal 8 karakter" }
         require(request.waNumber.isNotBlank()) { "Nomor WA tidak boleh kosong" }
 
-        //existing check
         val existing = repository.findUserByEmail(request.email)
         if (existing != null) {
             throw IllegalStateException(ApiErrorCodes.EMAIL_ALREADY_EXISTS)
         }
 
-        //hash pw
         val hashedPassword = BCrypt.hashpw(request.password, BCrypt.gensalt())
 
-        // user
-        val user = repository.createUser(request,hashedPassword)
+        val user = repository.createUser(request, hashedPassword)
 
-        //jwt token
         val token = generateToken(user.id, user.email)
         return AuthResponse(accessToken = token, user = user)
     }
@@ -43,8 +39,6 @@ class AuthService(private val repository: AuthRepository) {
         val userRow = repository.findUserByEmail(request.email)
             ?: throw IllegalStateException(ApiErrorCodes.INVALID_CREDENTIALS)
 
-        // 2. verifikasi password
-        // BCrypt.checkpw() → compare plain text vs hash di DB
         val isPasswordValid = BCrypt.checkpw(
             request.password,
             userRow[com.titipin.database.tables.UsersTable.password]
@@ -54,10 +48,8 @@ class AuthService(private val repository: AuthRepository) {
             throw IllegalStateException(ApiErrorCodes.INVALID_CREDENTIALS)
         }
 
-        // 3. convert ke UserDto
-        val user =  with(repository) { userRow.toUserDto()}
+        val user = with(repository) { userRow.toUserDto() }
 
-        // 4. generate token
         val token = generateToken(user.id, user.email)
 
         return AuthResponse(accessToken = token, user = user)
@@ -69,7 +61,7 @@ class AuthService(private val repository: AuthRepository) {
             .withAudience(jwtAudience)
             .withClaim("id", id)
             .withClaim("email", email)
-            .withExpiresAt(Date(System.currentTimeMillis() + 86_400_000)) // 24 hours
+            .withExpiresAt(Date(System.currentTimeMillis() + 86_400_000)) // expired 24 jam
             .sign(Algorithm.HMAC256(jwtSecret))
     }
 }

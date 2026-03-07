@@ -9,9 +9,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AuthRepository {
-    // helper function
-    // pengganti withContext
-    private suspend fun <T> dbQuery(block: suspend Transaction.() -> T ): T =
+    private suspend fun <T> dbQuery(block: suspend Transaction.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
     suspend fun findUserByEmail(email: String): ResultRow? = dbQuery {

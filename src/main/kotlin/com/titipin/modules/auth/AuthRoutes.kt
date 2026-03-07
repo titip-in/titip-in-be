@@ -27,7 +27,6 @@ fun Route.authRoutes() {
                     )
                 )
             } catch (e: IllegalArgumentException) {
-                // validasi gagal
                 call.respond(
                     HttpStatusCode.BadRequest,
                     ApiResponse.error<Unit>(
@@ -36,7 +35,6 @@ fun Route.authRoutes() {
                     )
                 )
             } catch (e: IllegalStateException) {
-                // email sudah terdaftar
                 call.respond(
                     HttpStatusCode.Conflict,
                     ApiResponse.error<Unit>(
@@ -47,7 +45,6 @@ fun Route.authRoutes() {
             }
         }
 
-        // POST /auth/login
         post("/login") {
             try {
                 val request = call.receive<LoginRequest>()
@@ -60,7 +57,6 @@ fun Route.authRoutes() {
                     )
                 )
             } catch (e: IllegalStateException) {
-                // email tidak ditemukan atau password salah
                 call.respond(
                     HttpStatusCode.Unauthorized,
                     ApiResponse.error<Unit>(
