@@ -18,7 +18,7 @@ application {
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -43,4 +43,6 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    // tambahkan di dependencies
+    implementation("org.jetbrains.exposed:exposed-java-time:${exposed_version}")
 }

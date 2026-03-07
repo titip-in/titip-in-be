@@ -1,5 +1,6 @@
 package com.titipin
 
+import com.titipin.plugins.configureSerialization
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {

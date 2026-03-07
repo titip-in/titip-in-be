@@ -1,38 +1,73 @@
 package com.titipin
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
-import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*
 import io.ktor.http.*
-import io.ktor.openapi.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.sql.Connection
-import java.sql.DriverManager
-import kotlin.time.Duration.Companion.seconds
-import org.jetbrains.exposed.sql.*
-import org.slf4j.event.*
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class JastipResponse(
+    val message: String,
+    val data: Map<String, String>
+)
 
 fun Application.configureRouting() {
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
-        }
-    }
     routing {
-        get("/") {
-            call.respondText("Hello World!")
+
+        // Health check — buat ngecek server nyala
+        get("/health") {
+            call.respond(mapOf(
+                "status" to "OK",
+                "app"    to "Titip.in API",
+                "version" to "0.0.1"
+            ))
+        }
+
+        // === JASTIP (dummy dulu, belum connect DB) ===
+        get("/jastip") {
+            call.respond(listOf(
+                mapOf(
+                    "id"           to "1",
+                    "fromLocation" to "Giant Dinoyo",
+                    "toLocation"   to "Kampus UB",
+                    "status"       to "ACTIVE"
+                ),
+                mapOf(
+                    "id"           to "2",
+                    "fromLocation" to "Transmart Malang",
+                    "toLocation"   to "Lowokwaru",
+                    "status"       to "ACTIVE"
+                )
+            ))
+        }
+
+        post("/jastip") {
+            val body = call.receive<Map<String, String>>()
+            call.respond(
+                status = HttpStatusCode.Created,
+                message = JastipResponse(
+                    message = "Jastip berhasil dibuat",
+                    data = body
+                )
+            )
+        }
+
+        get("/jastip/{id}") {
+            // call.parameters["id"] → pengganti req.params.id di Express
+            val id = call.parameters["id"]
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "ID tidak boleh kosong")
+                )
+
+            call.respond(mapOf(
+                "id"           to id,
+                "fromLocation" to "Giant Dinoyo",
+                "toLocation"   to "Kampus UB",
+                "status"       to "ACTIVE"
+            ))
         }
     }
 }
