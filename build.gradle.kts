@@ -46,4 +46,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     // tambahkan di dependencies
     implementation("org.jetbrains.exposed:exposed-java-time:${exposed_version}")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 }

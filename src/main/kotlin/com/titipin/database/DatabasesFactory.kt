@@ -2,6 +2,9 @@ package com.titipin
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import io.github.cdimascio.dotenv.dotenv
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*
 import io.ktor.http.*
@@ -26,5 +29,30 @@ import org.slf4j.event.*
 
 fun Application.configureDatabases() {
 
+    val dotenv = dotenv {
+        ignoreIfMissing = true
+    }
+    val dbUrl = dotenv["DB_URL"]
+    val dbUser = dotenv["DB_USER"]
+    val dbPassword = dotenv["DB_PASSWORD"]
+
+    // HikariCP — connection pool manager
+    val config = HikariConfig().apply {
+        jdbcUrl = dbUrl
+        username = dbUser
+        password = dbPassword
+        driverClassName = "org.postgresql.Driver"
+        maximumPoolSize = 10    // maksimal 10 koneksi sekaligus
+        minimumIdle = 2         // minimal 2 koneksi siap standby
+        idleTimeout = 300000    // koneksi idle dihapus setelah 5 menit
+        connectionTimeout = 30000 // timeout kalau ga dapat koneksi 30 detik
+    }
+
+    val dataSource = HikariDataSource(config)
+
+    // Connect Exposed ORM ke datasource
+    Database.connect(dataSource)
+
+    log.info("Database connected successfully!")
 }
 
