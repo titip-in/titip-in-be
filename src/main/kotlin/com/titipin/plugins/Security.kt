@@ -2,6 +2,7 @@ package com.titipin
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.github.cdimascio.dotenv.dotenv
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*
 import io.ktor.http.*
@@ -25,23 +26,24 @@ import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
 
 fun Application.configureSecurity() {
-    // Please read the jwt property from the config file if you are using EngineMain
-    val jwtAudience = "jwt-audience"
-    val jwtDomain = "https://jwt-provider-domain/"
-    val jwtRealm = "ktor sample app"
-    val jwtSecret = "secret"
+    val dotenv      = dotenv { ignoreIfMissing = true }
+    val jwtSecret   = dotenv["JWT_SECRET"]
+    val jwtIssuer   = dotenv["JWT_ISSUER"]
+    val jwtAudience = dotenv["JWT_AUDIENCE"]
     authentication {
-        jwt {
-            realm = jwtRealm
+        jwt("auth-jwt") {
+            realm = "Titip.in API"
             verifier(
                 JWT
                     .require(Algorithm.HMAC256(jwtSecret))
                     .withAudience(jwtAudience)
-                    .withIssuer(jwtDomain)
+                    .withIssuer(jwtIssuer)
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+                if (credential.payload.audience.contains(jwtAudience))
+                    JWTPrincipal(credential.payload)
+                else null
             }
         }
     }
