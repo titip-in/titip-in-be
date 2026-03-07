@@ -44,7 +44,10 @@ dependencies {
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    // tambahkan di dependencies
+    // exposed java time for date time support
     implementation("org.jetbrains.exposed:exposed-java-time:${exposed_version}")
+    //dotenv for environment variable
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    //crypt for auth
+    implementation("org.mindrot:jbcrypt:0.4")
 }
