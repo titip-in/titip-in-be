@@ -15,7 +15,13 @@ data class JastipResponse(
 
 fun Application.configureRouting() {
     routing {
-
+        // Root endpoint
+        get("/") {
+            call.respond(mapOf(
+                "message" to "Welcome to Titip.in API",
+                "version" to "0.0.1"
+            ))
+        }
         // Health check — buat ngecek server nyala
         get("/health") {
             call.respond(mapOf(
