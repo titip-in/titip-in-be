@@ -37,6 +37,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("com.h2database:h2:$h2_version")
     implementation("org.postgresql:postgresql:$postgres_version")
+    implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.github.flaxoos:ktor-server-rate-limiting:2.2.1")
     implementation("io.ktor:ktor-server-netty")
     implementation("ch.qos.logback:logback-classic:$logback_version")

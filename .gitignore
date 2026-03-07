@@ -37,3 +37,7 @@ out/
 
 ### project overview ###
 project-overview/
+
+### env ###
+.env
+*.env
