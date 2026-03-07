@@ -5,7 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @Serializable
 data class JastipResponse(
@@ -75,5 +78,28 @@ fun Application.configureRouting() {
                 "status"       to "ACTIVE"
             ))
         }
-    }
+
+        get("/jastip/slow") {
+            // simulasi "nunggu DB query 2 detik"
+            // ini TIDAK ngeblock server — request lain tetap bisa masuk
+            delay(2000)
+
+            call.respond(
+                mapOf(
+                    "message" to "Ini lambat tapi ga ngeblock server!",
+                    "data" to "selesai setelah 2 detik"
+                )
+            )
+        }
+
+        get("/jastip/db-simulation") {
+            // simulasi "pergi ke jalur IO buat query DB"
+            val result = withContext(Dispatchers.IO) {
+                delay(500) // pura-pura query DB 500ms
+                "data dari simulasi DB" // ini return value-nya
+            }
+            // result langsung bisa dipakai di sini
+            call.respond(mapOf("data" to result))
+        }
+        }
 }
