@@ -1,5 +1,6 @@
 package com.titipin
 
+import com.titipin.modules.auth.authRoutes
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -33,8 +34,9 @@ fun Application.configureRouting() {
                 "version" to "0.0.1"
             ))
         }
+        authRoutes()
 
-        // === JASTIP (dummy dulu, belum connect DB) ===
+        // ==== JASTIP DUMMY ENDPOINTS ====
         get("/jastip") {
             call.respond(listOf(
                 mapOf(
