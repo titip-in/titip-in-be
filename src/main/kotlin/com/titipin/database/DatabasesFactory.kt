@@ -2,6 +2,8 @@ package com.titipin
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.titipin.database.tables.JastipTable
+import com.titipin.database.tables.UsersTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.cdimascio.dotenv.dotenv
@@ -25,6 +27,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.time.Duration.Companion.seconds
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.*
 
 fun Application.configureDatabases() {
@@ -53,6 +56,12 @@ fun Application.configureDatabases() {
     // Connect Exposed ORM ke datasource
     Database.connect(dataSource)
 
+    transaction {
+        SchemaUtils.create(
+            UsersTable,
+            JastipTable
+        )
+    }
     log.info("Database connected successfully!")
 }
 
