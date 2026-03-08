@@ -2,6 +2,7 @@ package com.titipin
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.github.cdimascio.dotenv.dotenv
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*
 import io.ktor.http.*
@@ -24,15 +25,26 @@ import kotlin.time.Duration.Companion.seconds
 import org.jetbrains.exposed.sql.*
 import org.slf4j.event.*
 
-fun Application.configureRouting() {
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
-        }
-    }
-    routing {
-        get("/") {
-            call.respondText("Hello World!")
+fun Application.configureSecurity() {
+    val dotenv      = dotenv { ignoreIfMissing = true }
+    val jwtSecret   = dotenv["JWT_SECRET"]
+    val jwtIssuer   = dotenv["JWT_ISSUER"]
+    val jwtAudience = dotenv["JWT_AUDIENCE"]
+    authentication {
+        jwt("auth-jwt") {
+            realm = "Titip.in API"
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(jwtSecret))
+                    .withAudience(jwtAudience)
+                    .withIssuer(jwtIssuer)
+                    .build()
+            )
+            validate { credential ->
+                if (credential.payload.audience.contains(jwtAudience))
+                    JWTPrincipal(credential.payload)
+                else null
+            }
         }
     }
 }
