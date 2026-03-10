@@ -54,6 +54,10 @@ class AuthService(private val repository: AuthRepository) {
 
         return AuthResponse(accessToken = token, user = user)
     }
+    suspend fun getMe(userId: String): UserDto {
+        return repository.findUserById(userId)
+            ?: throw IllegalStateException(ApiErrorCodes.NOT_FOUND)
+    }
 
     private fun generateToken(id: String, email: String): String {
         return JWT.create()

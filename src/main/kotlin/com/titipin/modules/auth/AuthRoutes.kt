@@ -5,6 +5,9 @@ import com.titipin.shared.ApiErrorCodes
 import com.titipin.shared.ApiResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -64,6 +67,32 @@ fun Route.authRoutes() {
                         message = "Email atau password salah"
                     )
                 )
+            }
+        }
+
+        authenticate("auth-jwt") {
+
+            // GET /auth/me
+            get("/me") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId    = principal?.payload?.getClaim("id")?.asString()
+                        ?: return@get call.respond(
+                            HttpStatusCode.Unauthorized,
+                            ApiResponse.error<Unit>(ApiErrorCodes.UNAUTHORIZED, "Unauthorized")
+                        )
+
+                    val user = service.getMe(userId)
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ApiResponse.success<UserDto>(data = user)
+                    )
+                } catch (e: IllegalStateException) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        ApiResponse.error<Unit>(ApiErrorCodes.NOT_FOUND, "User tidak ditemukan")
+                    )
+                }
             }
         }
     }

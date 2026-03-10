@@ -18,6 +18,13 @@ class AuthRepository {
             .where { UsersTable.email eq email }
             .singleOrNull()
     }
+    suspend fun findUserById(id: String): UserDto? = dbQuery {
+        UsersTable
+            .selectAll()
+            .where { UsersTable.id eq UUID.fromString(id) }
+            .singleOrNull()
+            ?.let { with(this) { it.toUserDto() } }
+    }
 
     suspend fun createUser(request: RegisterRequest, hashedPassword: String): UserDto = dbQuery {
         val newId = UUID.randomUUID()
