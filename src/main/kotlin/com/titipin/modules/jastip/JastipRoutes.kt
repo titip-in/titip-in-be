@@ -117,6 +117,54 @@ fun Route.jastipRoutes() {
                     }
                 }
             }
+
+            // PUT /jastip/{id}
+            put("/{id}") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId    = principal?.payload?.getClaim("id")?.asString()
+                        ?: return@put call.respond(
+                            HttpStatusCode.Unauthorized,
+                            ApiResponse.error<Unit>(ApiErrorCodes.UNAUTHORIZED, "Unauthorized")
+                        )
+
+                    val id      = call.parameters["id"]
+                        ?: return@put call.respond(
+                            HttpStatusCode.BadRequest,
+                            ApiResponse.error<Unit>(ApiErrorCodes.BAD_REQUEST, "ID tidak boleh kosong")
+                        )
+
+                    val request = call.receive<UpdateJastipRequest>()
+                    val result  = service.updateStatus(id, userId, request)
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ApiResponse.success<JastipDto>(
+                            data    = result,
+                            message = "Status jastip berhasil diupdate"
+                        )
+                    )
+                } catch (e: IllegalArgumentException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ApiResponse.error<Unit>(ApiErrorCodes.BAD_REQUEST, e.message ?: "Request tidak valid")
+                    )
+                } catch (e: IllegalStateException) {
+                    when (e.message) {
+                        ApiErrorCodes.NOT_FOUND -> call.respond(
+                            HttpStatusCode.NotFound,
+                            ApiResponse.error<Unit>(ApiErrorCodes.NOT_FOUND, "Jastip tidak ditemukan")
+                        )
+                        ApiErrorCodes.INSUFFICIENT_PERMISSION -> call.respond(
+                            HttpStatusCode.Forbidden,
+                            ApiResponse.error<Unit>(ApiErrorCodes.INSUFFICIENT_PERMISSION, "Bukan jastip kamu")
+                        )
+                        else -> call.respond(
+                            HttpStatusCode.InternalServerError,
+                            ApiResponse.error<Unit>(ApiErrorCodes.SERVER_ERROR, "Terjadi kesalahan")
+                        )
+                    }
+                }
+            }
         }
     }
 }
