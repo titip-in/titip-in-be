@@ -1,6 +1,7 @@
 package com.titipin
 
 import com.titipin.modules.auth.authRoutes
+import com.titipin.modules.jastip.jastipRoutes
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
@@ -40,18 +41,6 @@ fun Application.configureRouting() {
         }
 
         authRoutes() // auth/register auth/login
-
-
-        // ── PROTECTED ROUTES ──
-        authenticate("auth-jwt") {
-            get("/protected-test") {
-                val principal = call.principal<JWTPrincipal>()
-                val userId    = principal?.payload?.getClaim("id")?.asString()
-                call.respond(mapOf(
-                    "message" to "Kamu berhasil akses protected route!",
-                    "userId"  to userId
-                ))
-            }
-        }
+        jastipRoutes() // jastip /jastip{id}
     }
 }
