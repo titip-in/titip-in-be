@@ -74,6 +74,16 @@ class JastipRepository {
         deleted > 0 // true kalau berhasil dihapus
     }
 
+    suspend fun updateStatus(id: String, userId: String, status: JastipStatus): Boolean = dbQuery {
+        val updated = JastipTable.update({
+            (JastipTable.id eq UUID.fromString(id)) and
+                    (JastipTable.userId eq UUID.fromString(userId))
+        }) {
+            it[JastipTable.status] = status
+        }
+        updated > 0
+    }
+
     // helper — convert ResultRow → JastipDto
     private fun ResultRow.toJastipDto() = JastipDto(
         id           = this[JastipTable.id].toString(),

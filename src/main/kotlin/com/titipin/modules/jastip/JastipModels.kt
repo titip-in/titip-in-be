@@ -26,3 +26,8 @@ data class JastipDto(
     val status: String,
     val createdAt: String
 )
+
+@Serializable
+data class UpdateJastipRequest(
+    val status: String // ACTIVE atau CLOSED
+)

@@ -1,6 +1,7 @@
 package com.titipin.modules.jastip
 
 
+import com.titipin.database.tables.JastipStatus
 import com.titipin.shared.ApiErrorCodes
 
 class JastipService(private val repository: JastipRepository) {
@@ -36,5 +37,23 @@ class JastipService(private val repository: JastipRepository) {
         if (!deleted) {
             throw IllegalStateException(ApiErrorCodes.INSUFFICIENT_PERMISSION)
         }
+    }
+
+    suspend fun updateStatus(id: String, userId: String, request: UpdateJastipRequest): JastipDto {
+        // validasi status
+        val status = try {
+            JastipStatus.valueOf(request.status)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Status tidak valid. Gunakan: ACTIVE, CLOSED")
+        }
+
+        // cek exist
+        repository.getById(id) ?: throw IllegalStateException(ApiErrorCodes.NOT_FOUND)
+
+        // update
+        val updated = repository.updateStatus(id, userId, status)
+        if (!updated) throw IllegalStateException(ApiErrorCodes.INSUFFICIENT_PERMISSION)
+
+        return repository.getById(id)!!
     }
 }

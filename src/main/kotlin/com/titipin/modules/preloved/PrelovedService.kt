@@ -1,5 +1,6 @@
 package com.titipin.modules.preloved
 
+import com.titipin.database.tables.PrelovedStatus
 import com.titipin.shared.ApiErrorCodes
 
 class PrelovedService(private val repository: PrelovedRepository) {
@@ -34,5 +35,20 @@ class PrelovedService(private val repository: PrelovedRepository) {
         if (!deleted) {
             throw IllegalStateException(ApiErrorCodes.INSUFFICIENT_PERMISSION)
         }
+    }
+
+    suspend fun updateStatus(id: String, userId: String, request: UpdatePrelovedRequest): PrelovedDto {
+        val status = try {
+            PrelovedStatus.valueOf(request.status)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Status tidak valid. Gunakan: AVAILABLE, SOLD, RESERVED")
+        }
+
+        repository.getById(id) ?: throw IllegalStateException(ApiErrorCodes.NOT_FOUND)
+
+        val updated = repository.updateStatus(id, userId, status)
+        if (!updated) throw IllegalStateException(ApiErrorCodes.INSUFFICIENT_PERMISSION)
+
+        return repository.getById(id)!!
     }
 }
