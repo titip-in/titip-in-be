@@ -71,6 +71,16 @@ class PrelovedRepository {
         deleted > 0
     }
 
+    suspend fun updateStatus(id: String, userId: String, status: PrelovedStatus): Boolean = dbQuery {
+        val updated = PrelovedTable.update({
+            (PrelovedTable.id eq UUID.fromString(id)) and
+                    (PrelovedTable.userId eq UUID.fromString(userId))
+        }) {
+            it[PrelovedTable.status] = status
+        }
+        updated > 0
+    }
+
     private fun ResultRow.toPrelovedDto() = PrelovedDto(
         id          = this[PrelovedTable.id].toString(),
         userId      = this[PrelovedTable.userId].toString(),

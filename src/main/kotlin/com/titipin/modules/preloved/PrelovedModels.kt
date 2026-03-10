@@ -25,3 +25,7 @@ data class PrelovedDto(
     val status: String,
     val createdAt: String
 )
+@Serializable
+data class UpdatePrelovedRequest(
+    val status: String  // AVAILABLE, SOLD, RESERVED
+)
