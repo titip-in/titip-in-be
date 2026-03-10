@@ -3,6 +3,7 @@ package com.titipin
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.titipin.database.tables.JastipTable
+import com.titipin.database.tables.PrelovedTable
 import com.titipin.database.tables.UsersTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -58,7 +59,8 @@ fun Application.configureDatabases() {
     transaction {
         SchemaUtils.create(
             UsersTable,
-            JastipTable
+            JastipTable,
+            PrelovedTable
         )
     }
     log.info("Database connected successfully!")
