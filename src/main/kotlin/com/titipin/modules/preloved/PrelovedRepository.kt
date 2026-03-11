@@ -3,6 +3,7 @@ package com.titipin.modules.preloved
 import com.titipin.database.tables.PrelovedCondition
 import com.titipin.database.tables.PrelovedStatus
 import com.titipin.database.tables.PrelovedTable
+import com.titipin.database.tables.UsersTable
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -18,14 +19,14 @@ class PrelovedRepository {
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
     suspend fun getAll(): List<PrelovedDto> = dbQuery {
-        PrelovedTable
+        (PrelovedTable innerJoin UsersTable)
             .selectAll()
             .where { PrelovedTable.status eq PrelovedStatus.AVAILABLE }
             .map { it.toPrelovedDto() }
     }
 
     suspend fun getById(id: String): PrelovedDto? = dbQuery {
-        PrelovedTable
+        (PrelovedTable innerJoin UsersTable)
             .selectAll()
             .where { PrelovedTable.id eq UUID.fromString(id) }
             .singleOrNull()
@@ -49,18 +50,12 @@ class PrelovedRepository {
             it[PrelovedTable.createdAt]   = now
         }
 
-        PrelovedDto(
-            id          = newId.toString(),
-            userId      = userId,
-            title       = request.title,
-            description = request.description,
-            price       = request.price,
-            category    = request.category,
-            condition   = request.condition,
-            imageUrl    = request.imageUrl,
-            status      = PrelovedStatus.AVAILABLE.name,
-            createdAt   = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        )
+        // query ulang setelah insert biar dapet user object via JOIN
+        (PrelovedTable innerJoin UsersTable)
+            .selectAll()
+            .where { PrelovedTable.id eq newId }
+            .single()
+            .toPrelovedDto()
     }
 
     suspend fun delete(id: String, userId: String): Boolean = dbQuery {
@@ -84,6 +79,11 @@ class PrelovedRepository {
     private fun ResultRow.toPrelovedDto() = PrelovedDto(
         id          = this[PrelovedTable.id].toString(),
         userId      = this[PrelovedTable.userId].toString(),
+        user        = UserSummary(
+            name      = this[UsersTable.name],
+            waNumber  = this[UsersTable.waNumber],
+            avatarUrl = this[UsersTable.avatarUrl]
+        ),
         title       = this[PrelovedTable.title],
         description = this[PrelovedTable.description],
         price       = this[PrelovedTable.price].toDouble(),

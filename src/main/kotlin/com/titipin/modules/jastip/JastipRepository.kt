@@ -2,6 +2,7 @@ package com.titipin.modules.jastip
 
 import com.titipin.database.tables.JastipStatus
 import com.titipin.database.tables.JastipTable
+import com.titipin.database.tables.UsersTable
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -15,24 +16,21 @@ class JastipRepository {
     private suspend fun <T> dbQuery(block: suspend Transaction.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
-    // GET semua jastip
     suspend fun getAll(): List<JastipDto> = dbQuery {
-        JastipTable
+        (JastipTable innerJoin UsersTable)
             .selectAll()
             .where { JastipTable.status eq JastipStatus.ACTIVE }
             .map { it.toJastipDto() }
     }
 
-    // GET jastip by ID
     suspend fun getById(id: String): JastipDto? = dbQuery {
-        JastipTable
+        (JastipTable innerJoin UsersTable)
             .selectAll()
             .where { JastipTable.id eq UUID.fromString(id) }
             .singleOrNull()
             ?.toJastipDto()
     }
 
-    // POST — buat jastip baru
     suspend fun create(userId: String, request: CreateJastipRequest): JastipDto = dbQuery {
         val newId    = UUID.randomUUID()
         val deadline = LocalDateTime.parse(request.deadline)
@@ -51,27 +49,20 @@ class JastipRepository {
             it[JastipTable.createdAt]    = now
         }
 
-        JastipDto(
-            id           = newId.toString(),
-            userId       = userId,
-            fromLocation = request.fromLocation,
-            toLocation   = request.toLocation,
-            deadline     = request.deadline,
-            latitude     = request.latitude,
-            longitude    = request.longitude,
-            notes        = request.notes,
-            status       = JastipStatus.ACTIVE.name,
-            createdAt    = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        )
+        // query ulang setelah insert biar dapet user object via JOIN
+        (JastipTable innerJoin UsersTable)
+            .selectAll()
+            .where { JastipTable.id eq newId }
+            .single()
+            .toJastipDto()
     }
 
-    // DELETE — hapus jastip (cuma owner yang bisa)
     suspend fun delete(id: String, userId: String): Boolean = dbQuery {
         val deleted = JastipTable.deleteWhere {
             (JastipTable.id eq UUID.fromString(id)) and
                     (JastipTable.userId eq UUID.fromString(userId))
         }
-        deleted > 0 // true kalau berhasil dihapus
+        deleted > 0
     }
 
     suspend fun updateStatus(id: String, userId: String, status: JastipStatus): Boolean = dbQuery {
@@ -84,10 +75,14 @@ class JastipRepository {
         updated > 0
     }
 
-    // helper — convert ResultRow → JastipDto
     private fun ResultRow.toJastipDto() = JastipDto(
         id           = this[JastipTable.id].toString(),
         userId       = this[JastipTable.userId].toString(),
+        user         = UserSummary(
+            name      = this[UsersTable.name],
+            waNumber  = this[UsersTable.waNumber],
+            avatarUrl = this[UsersTable.avatarUrl]
+        ),
         fromLocation = this[JastipTable.fromLocation],
         toLocation   = this[JastipTable.toLocation],
         deadline     = this[JastipTable.deadline].format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),

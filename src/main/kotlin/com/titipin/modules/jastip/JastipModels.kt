@@ -14,9 +14,17 @@ data class CreateJastipRequest(
 )
 
 @Serializable
+data class UserSummary(
+    val name: String,
+    val waNumber: String,
+    val avatarUrl: String? = null
+)
+
+@Serializable
 data class JastipDto(
     val id: String,
     val userId: String,
+    val user: UserSummary,      // ← tambah ini
     val fromLocation: String,
     val toLocation: String,
     val deadline: String,
