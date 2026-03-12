@@ -3,7 +3,7 @@ package com.titipin.database.tables
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 
-enum class JastipStatus{ ACTIVE, CLOSED}
+enum class JastipStatus{ ACTIVE, CLOSED }
 
 object JastipTable : Table("jastip_listings") {
     val id           = uuid("id").autoGenerate()
