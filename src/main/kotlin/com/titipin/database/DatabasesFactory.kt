@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.titipin.database.tables.JastipTable
 import com.titipin.database.tables.PrelovedTable
 import com.titipin.database.tables.UsersTable
+import com.titipin.database.tables.WantedTable
+import com.titipin.database.tables.JastipRequestTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.cdimascio.dotenv.dotenv
@@ -60,7 +62,9 @@ fun Application.configureDatabases() {
         SchemaUtils.create(
             UsersTable,
             JastipTable,
-            PrelovedTable
+            PrelovedTable,
+            JastipRequestTable,
+            WantedTable
         )
     }
     log.info("Database connected successfully!")

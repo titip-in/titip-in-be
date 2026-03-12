@@ -8,14 +8,22 @@ data class CreatePrelovedRequest(
     val description: String? = null,
     val price: Double,
     val category: String,
-    val condition: String,  // NEW, LIKE_NEW, GOOD, FAIR
+    val condition: String,
     val imageUrl: String? = null
+)
+
+@Serializable
+data class UserSummary(
+    val name: String,
+    val waNumber: String,
+    val avatarUrl: String? = null
 )
 
 @Serializable
 data class PrelovedDto(
     val id: String,
     val userId: String,
+    val user: UserSummary,      // ← tambah ini
     val title: String,
     val description: String? = null,
     val price: Double,
@@ -25,7 +33,8 @@ data class PrelovedDto(
     val status: String,
     val createdAt: String
 )
+
 @Serializable
 data class UpdatePrelovedRequest(
-    val status: String  // AVAILABLE, SOLD, RESERVED
+    val status: String
 )

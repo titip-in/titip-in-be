@@ -1,15 +1,11 @@
-package com.titipin.modules.jastip
-
+package com.titipin.modules.request
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateJastipRequest(
+data class CreateRequestRequest(
     val fromLocation: String,
     val toLocation: String,
-    val deadline: String,       // format: "2025-03-10T15:00:00"
-    val latitude: Double,
-    val longitude: Double,
     val notes: String? = null
 )
 
@@ -21,21 +17,19 @@ data class UserSummary(
 )
 
 @Serializable
-data class JastipDto(
+data class RequestDto(
     val id: String,
     val userId: String,
-    val user: UserSummary,      // ← tambah ini
+    val user: UserSummary,
     val fromLocation: String,
     val toLocation: String,
-    val deadline: String,
-    val latitude: Double,
-    val longitude: Double,
     val notes: String? = null,
     val status: String,
     val createdAt: String
 )
 
 @Serializable
-data class UpdateJastipRequest(
-    val status: String // ACTIVE atau CLOSED
+data class TakeRequestResponse(
+    val request: RequestDto,
+    val takenBy: UserSummary
 )
