@@ -11,7 +11,7 @@ object RequestTable : Table("jastip_requests") {
     val fromLocation = varchar("from_location", 255)
     val toLocation   = varchar("to_location", 255)
     val notes        = varchar("notes", 500).nullable()
-    val status       = enumerationByName("status", 20, JastipRequestStatus::class)
+    val status       = enumerationByName("status", 20, RequestStatus::class)
     val takenByUserId = uuid("taken_by_user_id").references(UsersTable.id).nullable()
     val createdAt    = datetime("created_at")
 
