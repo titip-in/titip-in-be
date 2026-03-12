@@ -6,14 +6,15 @@ import org.jetbrains.exposed.sql.javatime.datetime
 enum class WantedStatus { OPEN, FOUND, CLOSED }
 
 object WantedTable : Table("wanted_items") {
-    val id          = uuid("id").autoGenerate()
-    val userId      = uuid("user_id").references(UsersTable.id)
-    val title       = varchar("title", 255)
-    val description = varchar("description", 500).nullable()
-    val maxPrice    = decimal("max_price", 12, 2).nullable()
-    val category    = varchar("category", 100).nullable()
-    val status      = enumerationByName("status", 20, WantedStatus::class)
-    val createdAt   = datetime("created_at")
+    val id            = uuid("id").autoGenerate()
+    val userId        = uuid("user_id").references(UsersTable.id)
+    val title         = varchar("title", 255)
+    val description   = varchar("description", 500).nullable()
+    val maxPrice      = decimal("max_price", 12, 2).nullable()
+    val category      = varchar("category", 100).nullable()
+    val status        = enumerationByName("status", 20, WantedStatus::class)
+    val foundByUserId = uuid("found_by_user_id").references(UsersTable.id).nullable()
+    val createdAt     = datetime("created_at")
 
     override val primaryKey = PrimaryKey(id)
 }
