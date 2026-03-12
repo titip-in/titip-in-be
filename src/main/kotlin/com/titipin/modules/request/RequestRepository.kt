@@ -1,6 +1,9 @@
 package com.titipin.modules.request
 
-import com.titipin.modules.auth.UsersTable
+import com.titipin.database.tables.UsersTable
+import com.titipin.database.tables.RequestTable
+import com.titipin.database.tables.RequestStatus
+import io.ktor.http.cio.Request
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

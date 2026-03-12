@@ -6,7 +6,7 @@ import com.titipin.database.tables.JastipTable
 import com.titipin.database.tables.PrelovedTable
 import com.titipin.database.tables.UsersTable
 import com.titipin.database.tables.WantedTable
-import com.titipin.database.tables.JastipRequestTable
+import com.titipin.database.tables.RequestTable
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.cdimascio.dotenv.dotenv
@@ -63,7 +63,7 @@ fun Application.configureDatabases() {
             UsersTable,
             JastipTable,
             PrelovedTable,
-            JastipRequestTable,
+            RequestTable,
             WantedTable
         )
     }

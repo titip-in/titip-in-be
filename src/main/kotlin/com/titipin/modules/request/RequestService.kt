@@ -1,6 +1,7 @@
 package com.titipin.modules.request
 
 import com.titipin.shared.ApiErrorCodes
+import com.titipin.database.tables.RequestStatus
 
 class RequestService(private val repository: RequestRepository) {
 
