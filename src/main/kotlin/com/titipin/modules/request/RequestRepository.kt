@@ -3,10 +3,8 @@ package com.titipin.modules.request
 import com.titipin.database.tables.UsersTable
 import com.titipin.database.tables.RequestTable
 import com.titipin.database.tables.RequestStatus
-import io.ktor.http.cio.Request
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -18,14 +16,26 @@ class RequestRepository {
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
     suspend fun getAll(): List<RequestDto> = dbQuery {
-        (RequestTable innerJoin UsersTable)
+        RequestTable
+            .join(
+                otherTable = UsersTable,
+                joinType = JoinType.INNER,
+                onColumn = RequestTable.userId,
+                otherColumn = UsersTable.id
+            )
             .selectAll()
             .where { RequestTable.status eq RequestStatus.OPEN }
             .map { it.toRequestDto() }
     }
 
     suspend fun getById(id: String): RequestDto? = dbQuery {
-        (RequestTable innerJoin UsersTable)
+        RequestTable
+            .join(
+                otherTable = UsersTable,
+                joinType = JoinType.INNER,
+                onColumn = RequestTable.userId,
+                otherColumn = UsersTable.id
+            )
             .selectAll()
             .where { RequestTable.id eq UUID.fromString(id) }
             .singleOrNull()
@@ -36,16 +46,22 @@ class RequestRepository {
         val newId = UUID.randomUUID()
 
         RequestTable.insert {
-            it[id]           = newId
-            it[RequestTable.userId] = UUID.fromString(userId)
-            it[fromLocation] = request.fromLocation
-            it[toLocation]   = request.toLocation
-            it[notes]        = request.notes
-            it[status]       = RequestStatus.OPEN
-            it[createdAt]    = LocalDateTime.now()
+            it[id]                   = newId
+            it[RequestTable.userId]  = UUID.fromString(userId)
+            it[fromLocation]         = request.fromLocation
+            it[toLocation]           = request.toLocation
+            it[notes]                = request.notes
+            it[status]               = RequestStatus.OPEN
+            it[createdAt]            = LocalDateTime.now()
         }
 
-        (RequestTable innerJoin UsersTable)
+        RequestTable
+            .join(
+                otherTable = UsersTable,
+                joinType = JoinType.INNER,
+                onColumn = RequestTable.userId,
+                otherColumn = UsersTable.id
+            )
             .selectAll()
             .where { RequestTable.id eq newId }
             .single()
