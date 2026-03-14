@@ -3,6 +3,8 @@ package com.titipin
 import com.titipin.modules.auth.authRoutes
 import com.titipin.modules.jastip.jastipRoutes
 import com.titipin.modules.preloved.prelovedRoutes
+import com.titipin.modules.request.requestRoutes
+import com.titipin.modules.wanted.wantedRoutes
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
@@ -44,5 +46,7 @@ fun Application.configureRouting() {
         authRoutes() // auth/register auth/login
         jastipRoutes() // jastip /jastip{id}
         prelovedRoutes() // /preloved /preloved/{id}
+        wantedRoutes() // /wanted /wanted/{id}
+        requestRoutes() // /request /request/{id}
     }
 }
